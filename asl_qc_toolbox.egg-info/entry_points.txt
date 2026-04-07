@@ -1,0 +1,2 @@
+[console_scripts]
+asl-qc = asl_qc.cli:main

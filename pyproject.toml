@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "asl-qc-toolbox"
+version = "0.2.0"
+description = "Quality control toolbox for Arterial Spin Labeling MRI data"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "nibabel>=3.0",
+    "numpy>=1.20",
+    "scipy>=1.7",
+]
+
+[project.optional-dependencies]
+plots = ["matplotlib>=3.4"]
+ml = ["scikit-learn>=1.0"]
+dev = ["pytest>=7.0"]
+all = ["matplotlib>=3.4", "scikit-learn>=1.0", "pytest>=7.0"]
+
+[project.scripts]
+asl-qc = "asl_qc.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["asl_qc*"]
