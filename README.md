@@ -28,10 +28,10 @@ pip install -e ".[dev,reports]"
 ## Usage
 
 ```bash
-asl-qc /path/to/asl_data.nii.gz -o results/
+asl-qc "path to your file" -o results/
 
 # with custom thresholds and HTML report
-asl-qc /path/to/asl_data.nii.gz -o results/ --config thresholds.json --html
+asl-qc "path to your file" -o results/ --config thresholds.json --html
 ```
 
 ## Tests
