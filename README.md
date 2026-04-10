@@ -13,6 +13,12 @@ and flags scans as PASS / WARNING / FAIL based on configurable thresholds.
 - **DVARS**: standardized frame-to-frame intensity change (Power et al. 2012)
 - **Histogram analysis**: skewness, kurtosis, percentile spread, modality
 
+## Pipeline Architecture
+
+![arch](https://github.com/user-attachments/assets/b22c363b-2c1c-446f-bd36-8f700a989046)
+
+
+
 ## Install
 
 ```bash
