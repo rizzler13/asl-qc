@@ -34,18 +34,6 @@ asl-qc /path/to/asl_data.nii.gz -o results/ --config thresholds.json --html
 pytest tests/ -v
 ```
 
-## Thresholds
-
-Default thresholds are based on published literature values.
-Override any of them by passing a JSON file with `--config`:
-
-```json
-{
-    "snr_warn": 12.0,
-    "spatial_cov_warn": 0.45,
-    "neg_fraction_warn": 0.08
-}
-```
 
 ## References
 
