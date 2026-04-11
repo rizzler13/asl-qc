@@ -46,3 +46,10 @@ pytest tests/ -v
 - Dolui et al. (2017) — Quality Evaluation Index for ASL CBF maps
 - Power et al. (2012) — DVARS and framewise displacement
 - Mutsaerts et al. (2020) — ExploreASL pipeline
+
+
+## Status
+Prototype :
+
+Active: Core architectural validation using baseline metrics (SNR, Spatial CoV, Negative Fraction, DVARS, histograms).
+Full expansion of the OSIPI QC metric library is yet to be implemented
