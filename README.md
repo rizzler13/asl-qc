@@ -9,6 +9,7 @@ and flags scans as PASS / WARNING / FAIL based on configurable thresholds.
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 [![GSoC](https://img.shields.io/badge/GSoC-2026-orange?style=flat-square)](https://summerofcode.withgoogle.com/)
 
+## (This project is being developed as part of a Google Summer of Code 2026 proposal. feedbacks are welcome.)
 
 ## What it does
 
