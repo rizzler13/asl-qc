@@ -1,3 +1,8 @@
+
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![GSoC](https://img.shields.io/badge/GSoC-2026-orange?style=flat-square)](https://summerofcode.withgoogle.com/)
+
 # ASL QC Toolbox
 
 Automated quality control for Arterial Spin Labeling (ASL) MRI data.
@@ -5,27 +10,16 @@ Automated quality control for Arterial Spin Labeling (ASL) MRI data.
 Computes voxel-level and volume-level QC metrics on 4D ASL NIfTI files
 and flags scans as PASS / WARNING / FAIL based on configurable thresholds.
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python)](https://python.org)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-[![GSoC](https://img.shields.io/badge/GSoC-2026-orange?style=flat-square)](https://summerofcode.withgoogle.com/)
 
-## (This project is being developed as part of a Google Summer of Code 2026 proposal. feedbacks are welcome.)
+#### This project is being developed as part of a Google Summer of Code 2026 proposal. Feedbacks are welcome
 
-## What it does
-
-- **SNR**: signal-to-noise ratio using Rayleigh-corrected background noise
-- **Spatial CoV**: coefficient of variation across the brain (heterogeneity)
-- **Negative fraction**: proportion of non-physiological negative voxels
-- **DVARS**: standardized frame-to-frame intensity change (Power et al. 2012)
-- **Histogram analysis**: skewness, kurtosis, percentile spread, modality
 
 ## Pipeline Architecture
 
 ![arch](https://github.com/user-attachments/assets/b22c363b-2c1c-446f-bd36-8f700a989046)
 
 
-
-## 📌 Overview
+## Overview
 
 ASL (Arterial Spin Labeling) imaging is uniquely susceptible to artifacts: low SNR, motion spikes, background suppression failures, and spatial noise amplification. **asl-qc** provides a principled, reproducible QC pipeline that:
 
@@ -36,7 +30,7 @@ ASL (Arterial Spin Labeling) imaging is uniquely susceptible to artifacts: low S
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
@@ -62,7 +56,7 @@ A single-subject QC report evaluates each metric independently and flags deviati
 ### Cohort Report
 
 Run across a dataset to get aggregated statistics, distributions, and automated outlier detection.
-
+(Validation data was sourced from the OpenNeuro repository, specifically the "Resting State Perfusion in Healthy Aging" dataset (Accession: ds000240).)
 
 **Metric Distributions**
 
@@ -107,7 +101,7 @@ asl-qc-group "path to dataset" -o results/
 ```
 
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 asl-qc/
@@ -117,7 +111,10 @@ asl-qc/
 │   ├── report.py         # Per-scan HTML report generation
 │   ├── cohort.py         # Cohort aggregation & anomaly detection
 │   └── cli.py            # Command-line interface
+├── docs/
+│   └── testdataset/ 
 ├── results/
+|   ├── singleqc/
 │   └── cohortqc/
 ├── tests/
 ├── config/
@@ -127,7 +124,7 @@ asl-qc/
 
 ---
 
-## 📚 References
+## References
 
 - Power et al. (2012). *Spurious but systematic correlations in functional connectivity MRI networks arise from subject motion.* NeuroImage.
 - Dolui et al. (2024). *Automated Quality Evaluation Index for Arterial Spin Labeling Derived Cerebral Blood Flow Maps*
