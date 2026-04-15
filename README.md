@@ -48,8 +48,6 @@ pytest tests/ -v
 - Mutsaerts et al. (2020) — ExploreASL pipeline
 
 
-## Status
-Prototype :
-
-Active: Core architectural validation using baseline metrics (SNR, Spatial CoV, Negative Fraction, DVARS, histograms).
+## Status: Prototype
+Core architectural validation using baseline metrics (SNR, Spatial CoV, Negative Fraction, DVARS, histograms).
 Full expansion of the OSIPI QC metric library is yet to be implemented
