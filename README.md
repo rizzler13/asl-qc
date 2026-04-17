@@ -48,10 +48,7 @@ ASL (Arterial Spin Labeling) imaging is uniquely susceptible to artifacts: low S
 
 A single-subject QC report evaluates each metric independently and flags deviations with human-readable reasons.
 
-<img width="1942" height="1108" alt="image" src="https://github.com/user-attachments/assets/60729585-35e1-450e-b0cc-6f53071e5c00" />
-<img width="1342" height="1136" alt="image" src="https://github.com/user-attachments/assets/6423d531-f57a-45d4-83c9-7681d839fd02" />
-
-
+<img width="533" height="779" alt="2026-04-17_10-35-21" src="https://github.com/user-attachments/assets/d2876cc6-7f2f-45ea-a695-3a8425a7632a" />
 
 ### Cohort Report
 
