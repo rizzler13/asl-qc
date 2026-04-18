@@ -63,6 +63,7 @@ Color-coded boxplots overlay individual subject values (green = pass, orange = w
 <img width="1882" height="1552" alt="image" src="https://github.com/user-attachments/assets/8f11c802-65a6-4ca7-9923-e81757314ed4" />
 
 
+
 **Inter-Metric Correlations & Anomaly Detection** 
 
 Strong relationships between CoV, Skewness, and tSNR (r > 0.8) suggest shared variance — useful for diagnosing systematic scanner or protocol issues.
