@@ -78,7 +78,7 @@ def score_anomalies(metrics):
 
 def try_isolation_forest(metrics_batch):
     """Try to run IsolationForest on a batch of scans.
-    Returns None if sklearn not available or batch too small."""
+       Returns None if sklearn not available or batch too small."""
     if len(metrics_batch) < 10:
         log.info("batch too small for isolation forest (%d scans)", len(metrics_batch))
         return None
@@ -115,7 +115,7 @@ def try_isolation_forest(metrics_batch):
 
 
 def _flatten(metrics):
-    """Pull out the scalar values we care about from the nested metrics dict."""
+    #Pull out the scalar values we care about from the nested metrics dict.
     return {
         "snr": metrics.get("snr"),
         "spatial_cov": metrics.get("spatial_cov", {}).get("spatial_cov"),
@@ -127,7 +127,7 @@ def _flatten(metrics):
 
 
 def _approx_zscore(val, bounds):
-    """Rough z-score: 0 = center of range, 1 = at warning, 2 = at fail."""
+    #Rough z-score: 0 = center of range, 1 = at warning, 2 = at fail.
     lo_w, lo_f, hi_w, hi_f = bounds
 
     # figure out the "center" and "spread" from the bounds

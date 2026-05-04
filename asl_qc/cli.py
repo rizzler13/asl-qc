@@ -1,7 +1,4 @@
-"""
-CLI for ASL QC toolbox.
-Usage: asl-qc <your file> -o <output dir> [--config thresholds.json] [--no-html] [-v]
-"""
+"""CLI: asl-qc <file> -o <outdir> [--config thresholds.json] [--no-html] [-v]"""
 import argparse
 import logging
 import sys
@@ -43,10 +40,8 @@ def main(argv=None):
     outdir = Path(args.output).resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    # run
     results = run_qc(str(npath), config_path=args.config)
 
-    # reports
     stem = npath.stem.replace(".nii", "")
     jpath = outdir / f"{stem}_qc.json"
     write_json(results, str(jpath))
@@ -58,7 +53,6 @@ def main(argv=None):
 
     elapsed = time.time() - t0
 
-    # print summary to terminal
     d = results["decision"]
     m = results["metrics"]
     cv = m["spatial_cov"]
@@ -88,15 +82,20 @@ def main(argv=None):
     print(f"  Skewness:      {hi['skewness']:.3f}")
     print(f"  Kurtosis:      {hi['kurtosis']:.3f}")
     print(f"  Modality:      {hi['modality']}")
+
+    qei = m.get("qei", {})
+    qei_val = qei.get("qei") if isinstance(qei, dict) else None
+    if qei_val is not None:
+        print(f"  QEI:           {qei_val:.3f}")
+    else:
+        print(f"  QEI:           N/A")
     print("-" * 56)
     print(f"  Status:        {C.get(s, '')}{s}{R}")
 
-    # show explanations that aren't "ok"
     for ex in d.get("explanations", []):
         if ex["flag"] != "ok":
             print(f"    \u2022 {ex['metric']}: {ex['reason']}")
 
-    # consistency notes
     for c in results.get("consistency", []):
         print(f"    ~ {c['detail']}")
 
@@ -108,7 +107,6 @@ def main(argv=None):
     print("=" * 56)
     print()
 
-    # auto-open HTML
     if hpath and not args.no_open:
         webbrowser.open(f"file://{hpath}")
 
