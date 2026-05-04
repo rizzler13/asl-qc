@@ -1,8 +1,4 @@
-"""
-Histogram analysis of brain voxel intensities.
-Skewness, kurtosis, percentile spread, modality detection (KDE).
-Bimodality in ASL can mean mixing of control and label images.
-"""
+"""Histogram analysis: skewness, kurtosis, percentile spread, modality (KDE)."""
 import numpy as np
 from scipy import stats as sp
 from scipy.signal import find_peaks
@@ -29,7 +25,6 @@ def compute_histogram(vol, mask, nbins=128):
     p90 = float(np.percentile(vals, 90))
     width = p90 - p10
 
-    # tail fractions
     if sd > 1e-12:
         up_tail = float(np.mean(vals > mu + 2*sd))
         lo_tail = float(np.mean(vals < mu - 2*sd))
@@ -38,7 +33,6 @@ def compute_histogram(vol, mask, nbins=128):
 
     counts, edges = np.histogram(vals, bins=nbins)
     centers = 0.5 * (edges[:-1] + edges[1:])
-
     modality, npeaks = _detect_modality(vals)
 
     return {
@@ -56,7 +50,6 @@ def _detect_modality(vals):
     if vals.size < 100:
         return "unknown", 0
 
-    # subsample for speed
     if vals.size > 30000:
         rng = np.random.RandomState(42)
         vals = rng.choice(vals, 30000, replace=False)

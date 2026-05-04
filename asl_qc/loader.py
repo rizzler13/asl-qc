@@ -13,7 +13,6 @@ log = logging.getLogger(__name__)
 
 @dataclass
 class ASLImage:
-    # wraps a loaded 4D ASL NIfTI
     img: nib.Nifti1Image
     shape: tuple
     affine: np.ndarray
@@ -51,9 +50,17 @@ def get_volume(asl, t):
     return np.asarray(asl.img.dataobj[..., t], dtype=np.float64)
 
 
+def get_brain_mask_from_mean(asl):
+    """Mask from temporal mean — avoids control/label alternation bias."""
+    mean_vol = np.zeros(asl.spatial_shape, dtype=np.float64)
+    for t in range(asl.n_volumes):
+        mean_vol += np.asarray(asl.img.dataobj[..., t], dtype=np.float64)
+    mean_vol /= asl.n_volumes
+    return get_brain_mask(mean_vol)
+
+
 def get_brain_mask(vol):
-    """Otsu threshold + keep largest connected component.
-    No FSL or ANTs needed — good enough for QC masking."""
+    """Otsu threshold + largest connected component."""
     abs_v = np.abs(vol)
     nz = abs_v[abs_v > 0]
     if nz.size == 0:
