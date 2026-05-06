@@ -1,8 +1,4 @@
-"""
-Report generation.
-JSON always, HTML optional (but recommended).
-HTML uses base64-encoded PNG plots to keep file size small.
-"""
+"""Report generation — JSON + HTML with inline base64 plots."""
 import json
 import logging
 import datetime
@@ -37,12 +33,10 @@ def write_html(results, path):
     status = d["status"]
     colors = {"PASS": "#2e7d32", "WARNING": "#e65100", "FAIL": "#b71c1c"}
     badge_bg = colors.get(status, "#616161")
-    status_text = status
 
-    # metric rows
     rows = _rows(m, d.get("explanations", []))
+    qei_html = _qei_section(m.get("qei", {}), d.get("explanations", []))
 
-    # consistency
     cons = results.get("consistency", [])
     cons_html = ""
     if cons:
@@ -56,14 +50,12 @@ def write_html(results, path):
             cons_html += '</li>'
         cons_html += '</ul>'
 
-    # narrative
     narrative = d.get("narrative", "")
     narr_html = ""
     if narrative:
         lines = narrative.replace("\n", "<br>\n")
         narr_html = f'<h2>Explanation</h2><div class="narrative">{lines}</div>'
 
-    # plots (PNG, base64)
     hist_img = _hist_png(m.get("histogram", {}))
     dvars_img = _dvars_png(m.get("dvars", {}))
 
@@ -99,20 +91,46 @@ td.flag {{ font-size: 0.75rem; font-weight: 600; }}
              font-size: 0.82rem; margin: 6px 0; }}
 img {{ border: 1px solid #ddd; border-radius: 3px; margin: 6px 0; }}
 .foot {{ font-size: 0.72rem; color: #aaa; margin-top: 1.5rem; border-top: 1px solid #ddd; padding-top: 6px; }}
+.qei-card {{
+  margin: 1.2rem 0; border: 1px solid #d0d7de; border-radius: 8px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); padding: 1rem 1.2rem;
+}}
+.qei-header {{ display: flex; align-items: center; gap: 1rem; margin-bottom: 0.7rem; }}
+.qei-gauge {{ position: relative; width: 80px; height: 80px; flex-shrink: 0; }}
+.qei-gauge svg {{ width: 80px; height: 80px; transform: rotate(-90deg); }}
+.qei-gauge-bg {{ fill: none; stroke: #e8ecf0; stroke-width: 7; }}
+.qei-gauge-fg {{ fill: none; stroke-width: 7; stroke-linecap: round; }}
+.qei-gauge-label {{
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: monospace; font-size: 1.05rem; font-weight: 700; color: #222;
+}}
+.qei-title {{ font-size: 0.82rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.04em; }}
+.qei-subtitle {{ font-size: 0.72rem; color: #888; margin-top: 2px; }}
+.qei-breakdown {{
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem 1rem; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #eaecef;
+}}
+.qei-param {{ display: flex; flex-direction: column; }}
+.qei-param-name {{ font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.03em; color: #888; }}
+.qei-param-val {{ font-family: monospace; font-size: 0.85rem; font-weight: 600; color: #333; }}
+.qei-bar {{ height: 3px; border-radius: 2px; background: #e8ecf0; margin-top: 3px; overflow: hidden; }}
+.qei-bar-fill {{ height: 100%; border-radius: 2px; }}
 </style></head>
 <body>
 <h1>ASL QC Report</h1>
 <p class="meta">{Path(results['input_file']).name} &middot; {ts} &middot; v0.2</p>
-<p><span class="badge" style="background:{badge_bg}">{status_text}</span></p>
+<p><span class="badge" style="background:{badge_bg}">{status}</span></p>
 <h2>Metrics</h2>
 <table><tr><th>Metric</th><th>Value</th><th>Flag</th><th>Reason</th></tr>
 {rows}</table>
 
+{qei_html}
 {cons_html}
 {narr_html}
 {hist_html}
 {dvars_html}
-<div class="foot">SNR: Rayleigh-corrected background noise. DVARS: Power et al. 2012, MAD spike detection.</div>
+<div class="foot">SNR: Rayleigh-corrected background noise. DVARS: Power et al. 2012, MAD spike detection.
+QEI: Dolui et al. 2024, JMRI.</div>
 </body></html>"""
 
     p = Path(path)
@@ -124,7 +142,6 @@ img {{ border: 1px solid #ddd; border-radius: 3px; margin: 6px 0; }}
 
 
 def _rows(m, explanations):
-    # build lookup from explanations
     expl = {e["metric"]: e for e in explanations}
     lines = []
 
@@ -153,7 +170,124 @@ def _rows(m, explanations):
 
     mod = m.get("histogram", {}).get("modality", "unknown")
     lines.append(f'<tr><td>modality</td><td class="val">{mod}</td><td></td><td>KDE peak count</td></tr>')
+
+    qei_dict = m.get("qei", {})
+    qei_val = qei_dict.get("qei") if isinstance(qei_dict, dict) else None
+    if qei_val is not None:
+        row("qei", qei_val, ".3f")
+    else:
+        e = expl.get("qei", {})
+        flag = e.get("flag", "")
+        reason = e.get("reason", "not computed")
+        lines.append(f'<tr><td>qei</td><td class="val">N/A</td>'
+                     f'<td class="flag {flag}">{flag}</td><td>{reason}</td></tr>')
+
+    tsnr_val = m.get("tsnr")
+    if tsnr_val is not None and isinstance(tsnr_val, (int, float)):
+        row("tsnr", float(tsnr_val), ".2f")
+
+    motion = m.get("motion")
+    if isinstance(motion, dict) and motion.get("mean_fd") is not None:
+        row("motion", motion["mean_fd"], ".3f")
+
     return "\n".join(lines)
+
+
+def _qei_section(qei_dict, explanations):
+    if not isinstance(qei_dict, dict):
+        return ""
+
+    qei_val = qei_dict.get("qei")
+    pss = qei_dict.get("structural_similarity")
+    di = qei_dict.get("dispersion_index")
+    neg_gm = qei_dict.get("neg_fraction_gm")
+    c_ss = qei_dict.get("c_ss")
+    c_sv = qei_dict.get("c_sv")
+    note = qei_dict.get("computation_note", "")
+
+    expl = {e["metric"]: e for e in explanations}
+    qei_expl = expl.get("qei", {})
+    flag = qei_expl.get("flag", "")
+    reason = qei_expl.get("reason", "")
+
+    radius = 32
+    circumference = 2 * 3.14159 * radius
+    if qei_val is not None and isinstance(qei_val, (int, float)):
+        pct = max(0.0, min(1.0, qei_val))
+        score_text = f"{qei_val:.3f}"
+    else:
+        pct = 0.0
+        score_text = "N/A"
+
+    dash_offset = circumference * (1.0 - pct)
+
+    if qei_val is None:
+        gauge_color = "#aaa"
+        verdict = "unavailable"
+    elif qei_val >= 0.7:
+        gauge_color = "#2e7d32"
+        verdict = "good"
+    elif qei_val >= 0.4:
+        gauge_color = "#e65100"
+        verdict = "marginal"
+    else:
+        gauge_color = "#b71c1c"
+        verdict = "poor"
+
+    subtitle = verdict
+    if note == "low_pss":
+        subtitle += " \u00b7 approx (no structural prior)"
+
+    def _param(name, label, val, bar_max=1.0, invert=False, fmt=".4f"):
+        if val is None:
+            return (f'<div class="qei-param">'
+                    f'<span class="qei-param-name">{label}</span>'
+                    f'<span class="qei-param-val">N/A</span></div>')
+        fv = f"{val:{fmt}}"
+        bf = max(0.0, min(1.0, val / bar_max)) if bar_max > 0 else 0
+        if invert:
+            bf = 1.0 - bf
+        if bf > 0.65:
+            bc = "#2e7d32"
+        elif bf > 0.35:
+            bc = "#e0a800"
+        else:
+            bc = "#c62828"
+        return (f'<div class="qei-param">'
+                f'<span class="qei-param-name">{label}</span>'
+                f'<span class="qei-param-val">{fv}</span>'
+                f'<div class="qei-bar"><div class="qei-bar-fill" '
+                f'style="width:{bf*100:.0f}%;background:{bc}"></div></div></div>')
+
+    params = ""
+    params += _param("pss", "Structural Similarity", pss, bar_max=1.0)
+    params += _param("di", "Dispersion Index", di, bar_max=5.0, invert=True)
+    params += _param("neg_gm", "GM Negative Fraction", neg_gm, bar_max=0.5, invert=True)
+    params += _param("c_ss", "C<sub>struct</sub>", c_ss, bar_max=1.0)
+    params += _param("c_sv", "C<sub>spatial</sub>", c_sv, bar_max=1.0)
+
+    return f"""<h2>Quality Evaluation Index</h2>
+<div class="qei-card">
+  <div class="qei-header">
+    <div class="qei-gauge">
+      <svg viewBox="0 0 80 80">
+        <circle class="qei-gauge-bg" cx="40" cy="40" r="{radius}"/>
+        <circle class="qei-gauge-fg" cx="40" cy="40" r="{radius}"
+          stroke="{gauge_color}"
+          stroke-dasharray="{circumference:.1f}"
+          stroke-dashoffset="{dash_offset:.1f}"/>
+      </svg>
+      <div class="qei-gauge-label">{score_text}</div>
+    </div>
+    <div>
+      <div class="qei-title">QEI Score</div>
+      <div class="qei-subtitle">{subtitle}</div>
+    </div>
+  </div>
+  <div class="qei-breakdown">
+    {params}
+  </div>
+</div>"""
 
 
 def _hist_png(hist):
