@@ -1,8 +1,4 @@
-"""
-Shared fixtures for ASL QC tests.
-Pass --nifti /path/to/file.nii.gz to test on your own data.
-Without it, everything runs on synthetic volumes.
-"""
+"""Shared test fixtures. Pass --nifti to test on real data."""
 import numpy as np
 import nibabel as nib
 import pytest
@@ -17,7 +13,6 @@ def _make_synthetic(path, shape=(32, 32, 10, 20), signal=800.0, noise=20.0):
     x, y, z, t = shape
     rng = np.random.RandomState(42)
 
-    # spherical brain
     cx, cy, cz = x//2, y//2, z//2
     r = min(x, y, z) // 3
     xx, yy, zz = np.mgrid[:x, :y, :z]
@@ -29,7 +24,6 @@ def _make_synthetic(path, shape=(32, 32, 10, 20), signal=800.0, noise=20.0):
         v[brain] += signal
         data[..., i] = v
 
-    # inject spike at volume 12
     if t > 14:
         data[..., 12] += rng.normal(0, noise*6, (x, y, z)).astype(np.float32)
 

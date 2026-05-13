@@ -1,6 +1,4 @@
-"""
-Integration tests: full pipeline + CLI.
-"""
+"""Integration tests: full pipeline + CLI."""
 import json
 import math
 import os
@@ -55,7 +53,6 @@ class TestPipeline:
         assert len(r["decision"]["narrative"]) > 20
 
     def test_explainability(self, any_nifti):
-        # every explanation should have metric, flag, reason, thresholds
         from asl_qc.qc import run_qc
         r = run_qc(any_nifti)
         for ex in r["decision"]["explanations"]:
@@ -71,7 +68,6 @@ class TestPipeline:
         from asl_qc.qc import run_qc
         r = run_qc(any_nifti, config_path=str(cfg))
         assert r["thresholds"]["snr_warn"] == 999.0
-        # should trigger SNR warning with this crazy threshold
         snr_ex = [e for e in r["decision"]["explanations"] if e["metric"] == "snr"]
         assert snr_ex[0]["flag"] in ("warning", "fail")
 
@@ -108,9 +104,7 @@ class TestCLI:
         with open(path) as f:
             content = f.read()
         assert "ASL QC" in content
-        assert "ASL QC" in content
 
-        # should be way under 500 lines
         lines = content.count("\n")
         assert lines < 500, f"HTML is {lines} lines, expected < 500"
 
