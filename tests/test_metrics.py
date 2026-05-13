@@ -1,16 +1,10 @@
-"""
-Unit tests for individual metrics + new modules.
-Run: pytest tests/ -v
-With real data: pytest tests/ -v --nifti /path/to/data.nii.gz
-"""
+"""Unit tests for individual metrics."""
 import math
 import numpy as np
 import pytest
 
 from asl_qc.loader import load_nifti, get_volume, get_brain_mask
 
-
-# --- loader ---
 
 class TestLoader:
     def test_loads_4d(self, any_nifti):
@@ -57,8 +51,6 @@ class TestLoader:
         assert all(v > 0 for v in asl.voxel_sizes)
 
 
-# --- SNR ---
-
 class TestSNR:
     def test_positive(self, any_nifti):
         from asl_qc.metrics.snr import compute_snr
@@ -78,8 +70,6 @@ class TestSNR:
         m[3:7, 3:7, 3:7] = True
         assert math.isinf(compute_snr(v, m))
 
-
-# --- spatial CoV ---
 
 class TestSpatialCoV:
     def test_nonnegative(self, any_nifti):
@@ -110,8 +100,6 @@ class TestSpatialCoV:
         assert abs(compute_spatial_cov(asl, mask)["spatial_cov"]) < 1e-10
 
 
-# --- negative fraction ---
-
 class TestNegFrac:
     def test_range(self, any_nifti):
         from asl_qc.metrics.negative_fraction import compute_negative_fraction
@@ -131,8 +119,6 @@ class TestNegFrac:
         r = compute_negative_fraction(np.full((8,8,8), -5.0), np.ones((8,8,8), dtype=bool))
         assert r["negative_fraction"] == 1.0
 
-
-# --- DVARS ---
 
 class TestDVARS:
     def test_frame_count(self, any_nifti):
@@ -166,8 +152,6 @@ class TestDVARS:
                    "n_spikes", "spike_fraction", "spike_indices"]:
             assert k in r, f"missing {k}"
 
-
-# --- histogram ---
 
 class TestHistogram:
     def test_width_positive(self, any_nifti):
@@ -205,8 +189,6 @@ class TestHistogram:
         assert math.isnan(r["skewness"])
 
 
-# --- consistency checks ---
-
 class TestConsistency:
     def test_returns_list(self, any_nifti):
         from asl_qc.consistency import run_consistency_checks
@@ -229,11 +211,10 @@ class TestConsistency:
         assert isinstance(findings, list)
 
     def test_finding_has_required_keys(self):
-        # fake a contradictory scenario
         from asl_qc.consistency import run_consistency_checks
         metrics = {
-            "snr": 50.0,  # high
-            "negative_fraction": {"negative_fraction": 0.25},  # also high -> contradiction
+            "snr": 50.0,
+            "negative_fraction": {"negative_fraction": 0.25},
             "spatial_cov": {"spatial_cov": 0.2},
             "dvars": {"spike_fraction": 0.05},
             "histogram": {"modality": "unimodal"},
@@ -245,8 +226,6 @@ class TestConsistency:
         assert "detail" in f
         assert "severity" in f
 
-
-# --- anomaly scoring ---
 
 class TestAnomaly:
     def test_per_metric_scores(self, any_nifti):
@@ -273,10 +252,9 @@ class TestAnomaly:
 
     def test_flags_are_valid(self):
         from asl_qc.anomaly import score_anomalies
-        # extreme values should get flagged
         metrics = {
-            "snr": 2.0,  # very low
-            "spatial_cov": {"spatial_cov": 1.5},  # very high
+            "snr": 2.0,
+            "spatial_cov": {"spatial_cov": 1.5},
             "negative_fraction": {"negative_fraction": 0.5},
             "dvars": {"spike_fraction": 0.5},
             "histogram": {"skewness": 8.0, "kurtosis": 15.0},
@@ -286,8 +264,6 @@ class TestAnomaly:
         assert pm["snr"]["flag"] in ("fail", "warning")
         assert pm["spatial_cov"]["flag"] in ("fail", "warning")
 
-
-# --- normalization ---
 
 class TestNormalize:
     def test_returns_zscores(self, any_nifti):
@@ -312,8 +288,6 @@ class TestNormalize:
         assert "zscore" in normed["snr"]
         assert "percentile" in normed["snr"]
 
-
-# --- cross-metric sanity ---
 
 class TestCrossSanity:
     def test_high_snr_reasonable_cov(self, any_nifti):
