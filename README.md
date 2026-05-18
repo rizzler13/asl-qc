@@ -11,7 +11,6 @@ Computes voxel-level and volume-level QC metrics on 4D ASL NIfTI files
 and flags scans as PASS / WARNING / FAIL based on configurable thresholds.
 
 
-#### This project is being developed as part of a Google Summer of Code 2026 proposal. Feedbacks are welcome
 
 
 ## Pipeline Architecture
