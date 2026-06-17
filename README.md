@@ -131,5 +131,5 @@ asl-qc/
 
 
 ## Status : Prototype
-Core architectural validation using baseline metrics (SNR, Spatial CoV, Negative Fraction, DVARS, histograms).
-Full expansion of the OSIPI QC metric library is yet to be implemented
+Core architectural validation is using baseline metrics (SNR, Spatial CoV, Negative Fraction, DVARS, histograms).
+Full expansion of the QC metric library is yet to be implemented
